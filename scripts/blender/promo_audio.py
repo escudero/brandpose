@@ -111,8 +111,8 @@ def main():
         place(wet, A.blip(), t + 0.05, 0.06)
 
     # fim: resolve em ré maior com a marca
-    place(dry, A.boom(2.6), ev["logo"], 0.34)
-    place(wet, A.chime([D5, FS5, A5, 1174.66], 3.5), ev["logo"] + 0.02, 0.28)
+    place(dry, A.boom(2.6), ev["final"], 0.34)
+    place(wet, A.chime([D5, FS5, A5, 1174.66], 3.5), ev["final"] + 0.02, 0.28)
 
     mix = dry * duck[:, None] + A.reverb(wet) * 1.0 + wet * 0.5
     mix = mix[: int(total * SR)]

@@ -62,7 +62,6 @@ TEXTS = {
         "stats": "Em {s} s, o olhar dele parou em:",
         "end1": "Toda loja já tem câmeras.",
         "end2": "Agora elas podem mostrar o que o cliente vê.",
-        "tagline": "a visão do cliente, a partir de uma câmera comum",
         "author": "Claudio Escudero  ·  projeto pessoal, código aberto",
         "credits": ["Imagens: demonstração pública da câmera ACTi E43A (© ACTi Corporation)",
                     "3D: Blender  ·  olhar: Gaze-LLE  ·  pessoas: YOLO11"],
@@ -87,7 +86,6 @@ TEXTS = {
         "stats": "In {s} s, his gaze landed on:",
         "end1": "Every store already has cameras.",
         "end2": "Now they can show what shoppers see.",
-        "tagline": "the shopper's view, from an ordinary camera",
         "author": "Claudio Escudero  ·  personal project, open source",
         "credits": ["Footage: public demo of the ACTi E43A camera (© ACTi Corporation)",
                     "3D: Blender  ·  gaze: Gaze-LLE  ·  people: YOLO11"],
@@ -95,7 +93,6 @@ TEXTS = {
 }
 LINK = "github.com/escudero/brandpose"
 LINKEDIN = "linkedin.com/in/claudioescudero"
-FOOTER = f"BrandPose  ·  {LINKEDIN}"
 
 
 def font(size, weight="bold"):
@@ -413,11 +410,6 @@ class Promo:
             img = self.shot("mapa", MAPA_N - 1)
             img = (img * (1 - 0.4 * ease(u / 1.4))).astype(np.uint8)
             low = self.low["fim"]
-            a = fade(t, t0 + 1.5, 99, 0.6)
-            yy = np.arange(H, dtype=np.float32)  # uma faixa escura atrás da marca
-            img = (img * (1 - 0.5 * a * np.exp(-(((yy - 650) / 130) ** 2)))[:, None, None]).astype(np.uint8)
-            L.text((W // 2, 624), "BRANDPOSE", 84, WHITE, a, "mm", "heavy", rise=16, track=10)
-            L.text((W // 2, 700), tx["tagline"], 32, WHITE, a, "mm", "medium", rise=16)
             a = fade(t, t0 + 2.2, 99, 0.5)
             y = 1030
             L.text((W // 2, y), tx["author"], 32, WHITE, a, "mm", "demi", rise=12)
@@ -458,7 +450,7 @@ class Promo:
         for s, a0, a1, fin, size, col, wt in subs:
             L.block(W // 2, SUB_Y, s, size, 960, fade(t, a0, a1, fin, 0.22), col, wt)
         if name != "fim":
-            L.text((W // 2, H - 34), FOOTER, 24, WHITE, 0.85, "mm", "demi")
+            L.text((W // 2, H - 34), LINKEDIN, 24, WHITE, 0.85, "mm", "demi")
         return L.onto(img)
 
     def timeline(self):
@@ -466,7 +458,7 @@ class Promo:
         events = {
             "enters": 2.9, "wipe": S["revela"][0] + 0.35, "fly": S["voo"][0], "eyes": S["visao"][0] - 0.25,
             "fast": S["visao"][0] + (F_FAST - FREEZE) / FPS, "map": S["mapa"][0],
-            "rows": [S["mapa"][0] + 1.7 + 0.3 * i for i in range(len(self.stats))], "logo": S["fim"][0] + 1.5,
+            "rows": [S["mapa"][0] + 1.7 + 0.3 * i for i in range(len(self.stats))], "final": S["fim"][0] + 1.5,
             "heads": [0.0, S["congela"][0], S["revela"][0], S["voo"][0], S["visao"][0], S["visao"][0] + 4.4,
                       S["mapa"][0], S["fim"][0] + 0.2],
         }

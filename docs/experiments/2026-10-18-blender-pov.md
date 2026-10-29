@@ -103,7 +103,7 @@ Um corte para divulgação, com a estrutura do vídeo de demonstração do proje
 | 7,6–13,0 s | Voo | Com o tempo parado, a lente da CCTV se desfaz, e a câmera sai dela, passa por trás dele e entra nos olhos dele. Perto da cabeça, o boneco some aos poucos |
 | 13,0–24,2 s | Visão | O que ele vê, renderizado em pé, com a câmera real no mesmo instante num canto e a zona olhada, que some quando ele passa mais de 0,5 s sem olhar para nenhuma. Os últimos 8 s do trecho passam a 3× |
 | 24,2–32,0 s | Mapa | Sem teto: o caminho dele no piso, os pontos para onde olhou e o tempo por zona |
-| 32,0–38,0 s | Fim | "Toda loja já tem câmeras. Agora elas podem mostrar o que o cliente vê.", a marca e os créditos, com os links do LinkedIn e do GitHub, sobre o mapa |
+| 32,0–38,0 s | Fim | "Toda loja já tem câmeras. Agora elas podem mostrar o que o cliente vê.", o autor e os créditos, com os links do LinkedIn e do GitHub, sobre o mapa |
 
 `shots.py` renderiza as tomadas em pé (1080×1350) a partir da cena que o `pov.py` salvou (`pov.blend`): o quadro da CCTV, o voo, a visão dele (só os 336 quadros que o vídeo mostra) e o mapa. Para o voo sair exatamente do recorte da CCTV, a primeira pose tem a inclinação dela e a lente deslocada (shift) até o centro do recorte: sem a distorção, o quadro 3D da CCTV e o primeiro quadro do voo diferem em média 1,4 (de 255) por pixel. O `promo.py` desfaz a distorção em 0,4 s e emenda no voo, sem fusão. `promo.py` monta o vídeo e aplica a lente da CCTV ao quadro 3D (`warp.py`), para a cortina casar com o vídeo. `promo_audio.py` faz a trilha com os sintetizadores do `scripts/promo/audio.py`, num arranjo novo: suspense em si menor, abertura em ré maior quando a loja vira 3D e pulso durante a visão dele.
 
