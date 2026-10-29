@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BrandPose · Atenção nas gôndolas em 3D</title>
+<style>
+  :root { --bg:#07090d; --fg:#e9eef5; --mut:#8b96a8; --acc:#ffb547; --glass:rgba(14,18,26,.72); }
+  * { box-sizing:border-box }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:14px/1.4 Inter,system-ui,-apple-system,sans-serif; overflow:hidden }
+  #c { position:fixed; inset:0; width:100%; height:100% }
+  #labels { position:fixed; inset:0; pointer-events:none }
+  .glass { background:var(--glass); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,.08); border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,.45) }
+  #topo { position:fixed; left:20px; top:18px; padding:14px 18px; max-width:520px }
+  #topo h1 { margin:0; font-size:19px; letter-spacing:.2px }
+  #topo h1 span { color:var(--acc) }
+  #topo p { margin:4px 0 0; color:var(--mut); font-size:12.5px }
+  #kpis { display:flex; gap:10px; margin-top:12px }
+  .kpi { flex:1; padding:8px 10px; border-radius:12px; background:rgba(255,255,255,.04) }
+  .kpi b { display:block; font-size:22px; font-variant-numeric:tabular-nums }
+  .kpi small { color:var(--mut) }
+  #rank { position:fixed; right:20px; top:18px; width:330px; padding:14px 16px }
+  #rank h2, #alt h2 { margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:1.4px; color:var(--mut) }
+  .lin { position:relative; margin:7px 0; height:30px; border-radius:8px; overflow:hidden; background:rgba(255,255,255,.04); transition:transform .5s }
+  .lin .bar { position:absolute; inset:0 auto 0 0; background:linear-gradient(90deg,#5b1d8f,#e8432c,#ffb547); opacity:.85; transition:width .25s }
+  .lin span { position:relative; display:flex; justify-content:space-between; padding:6px 10px; font-size:12.5px; font-variant-numeric:tabular-nums }
+  #alt { position:fixed; right:20px; bottom:96px; width:330px; padding:14px 16px }
+  .faixa { display:grid; grid-template-columns:130px 1fr 44px; align-items:center; gap:8px; margin:5px 0; font-size:12px }
+  .faixa i { display:block; height:10px; border-radius:5px; background:linear-gradient(90deg,#1a6cff,#2ee6e6); transition:width .25s }
+  #barra { position:fixed; left:20px; right:20px; bottom:18px; height:62px; display:flex; align-items:center; gap:12px; padding:0 16px }
+  #barra button { background:rgba(255,255,255,.07); color:var(--fg); border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:8px 12px; font:inherit; cursor:pointer; white-space:nowrap }
+  #barra button:hover { background:rgba(255,255,255,.14) }
+  #barra button.on { background:var(--acc); color:#1b1206; border-color:var(--acc); font-weight:600 }
+  #play { width:44px; font-size:16px }
+  #tempo { flex:1; accent-color:var(--acc) }
+  #relogio { font-variant-numeric:tabular-nums; color:var(--mut); width:92px; text-align:right }
+  #pip { position:fixed; left:20px; bottom:96px; width:360px; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,.12); box-shadow:0 10px 40px rgba(0,0,0,.6) }
+  #pip video { display:block; width:100% }
+  #pip div { position:absolute; left:10px; top:8px; font-size:11px; letter-spacing:1.2px; color:#fff; text-shadow:0 1px 3px #000 }
+  #pip div::before { content:"●"; color:#ff4d4d; margin-right:6px; animation:pisca 1.2s infinite }
+  @keyframes pisca { 50% { opacity:.2 } }
+  #dica { position:fixed; pointer-events:none; padding:12px 14px; min-width:240px; display:none; font-size:13px }
+  #dica b { font-size:15px }
+  #dica .n { font-size:26px; font-weight:700; color:var(--acc); font-variant-numeric:tabular-nums }
+  #dica small { color:var(--mut) }
+  .rot { padding:3px 8px; border-radius:8px; background:rgba(8,10,14,.75); border:1px solid rgba(255,181,71,.35); font-size:11.5px; white-space:nowrap; font-variant-numeric:tabular-nums }
+  .rot b { color:var(--acc) }
+  #intro { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; background:radial-gradient(ellipse at center,rgba(7,9,13,.55),rgba(7,9,13,.96)); transition:opacity 1.2s; z-index:5 }
+  #intro h1 { font-size:44px; margin:0; letter-spacing:-.5px }
+  #intro h1 span { background:linear-gradient(90deg,#ffb547,#ff5d5d,#c77dff); -webkit-background-clip:text; color:transparent }
+  #intro p { color:var(--mut); font-size:16px; max-width:620px; text-align:center }
+  #intro button { margin-top:18px; font:600 16px inherit; padding:14px 28px; border-radius:999px; border:0; background:linear-gradient(90deg,#ffb547,#ff5d5d); color:#1b1206; cursor:pointer; box-shadow:0 10px 40px rgba(255,93,93,.35) }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+} }
+</script>
+<script src="dados.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="labels"></div>
+
+<div id="intro">
+  <h1>Para onde seus clientes <span>realmente olham</span></h1>
+  <p>Uma câmera de segurança comum. Nenhum sensor. A IA acompanha cada cliente, estima o olhar
+     quadro a quadro e pinta a atenção direto nas gôndolas da sua loja, em 3D.</p>
+  <button id="comecar">▶ Ver a atenção nascer</button>
+</div>
+
+<div id="topo" class="glass">
+  <h1>Atenção nas gôndolas <span>· ao vivo</span></h1>
+  <p id="sub"></p>
+  <div id="kpis">
+    <div class="kpi"><b id="k-seg">0,0 s</b><small>de atenção em gôndolas</small></div>
+    <div class="kpi"><b id="k-agora">0</b><small>clientes agora</small></div>
+    <div class="kpi"><b id="k-olh">0</b><small>olhares analisados</small></div>
+  </div>
+</div>
+
+<div id="rank" class="glass"><h2>Móveis mais olhados</h2><div id="linhas"></div></div>
+<div id="alt" class="glass"><h2>Em que altura</h2><div id="faixas"></div></div>
+
+<div id="pip"><video id="video" src="video.mp4" muted playsinline preload="auto"></video><div>CÂMERA DA LOJA</div></div>
+
+<div id="barra" class="glass">
+  <button id="play">▶</button>
+  <input id="tempo" type="range" min="0" max="1000" value="0">
+  <span id="relogio">0:00 / 1:00</span>
+  <button id="vel">1×</button>
+  <button id="v-filme" class="on">🎬 Filme</button>
+  <button id="v-voo">🎥 Voo</button>
+  <button id="v-cctv">📹 Câmera da loja</button>
+  <button id="v-cima">🗺 De cima</button>
+  <button id="final">✨ Resultado final</button>
+  <button id="b-pip">Vídeo</button>
+</div>
+<div id="dica" class="glass"></div>
+
+<script type="module">
+/*APP*/
+</script>
+</body>
+</html>
